@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#02040a">
-<title>DRAGON TERRITORY '98 — MOBILE START FIX v6</title>
+<title>DRAGON TERRITORY '98 — SPEED & CONTROL v7</title>
 <style>
 :root{--c:#4ef6ff;--p:#ff4da6;--y:#ffe34d;--g:#83ff75;--bg:#02040a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
@@ -170,11 +170,11 @@ function moveDragons(){
  if(freeze)return;
  for(const d of dragons){
   let h=d[0],rage=d.boss?.045:0;
-  if(Math.random()<(.095+stage*.0025)){h.vq+=(Math.random()-.5)*(.12+rage);h.vr+=(Math.random()-.5)*(.12+rage)}
+  if(Math.random()<(.11+stage*.003)){h.vq+=(Math.random()-.5)*(.12+rage);h.vr+=(Math.random()-.5)*(.12+rage)}
   if(drawing&&trail.length&&Math.random()<(.24+(d.boss?.12:0))){let t=trail[trail.length-1],dx=t.q-h.q,dy=t.r-h.r,z=Math.hypot(dx,dy)||1;h.vq+=dx/z*.018;h.vr+=dy/z*.018}
   // occasional "crazy dash"
-  if(Math.random()<.0045+stage*.00025){h.vq*=2.45;h.vr*=2.45;tone(160,.05,"sawtooth",.01)}
-  let max=.185+stage*.0075+(d.boss?.055:0),sp=Math.hypot(h.vq,h.vr)||1;if(sp>max){h.vq=h.vq/sp*max;h.vr=h.vr/sp*max}
+  if(Math.random()<.0055+stage*.0003){h.vq*=2.55;h.vr*=2.55;tone(160,.05,"sawtooth",.01)}
+  let max=.235+stage*.011+(d.boss?.07:0),sp=Math.hypot(h.vq,h.vr)||1;if(sp>max){h.vq=h.vq/sp*max;h.vr=h.vr/sp*max}
   let nq=h.q+h.vq,nr=h.r+h.vr,iq=Math.round(nq),ir=Math.round(nr);
   if(iq<2||iq>=COLS-2||grid[Math.max(0,Math.min(ROWS-1,Math.round(h.r)))][Math.max(0,Math.min(COLS-1,iq))]===1){h.vq*=-1.05;nq=h.q+h.vq}
   if(ir<2||ir>=ROWS-2||grid[Math.max(0,Math.min(ROWS-1,ir))][Math.max(0,Math.min(COLS-1,Math.round(h.q)))]===1){h.vr*=-1.05;nr=h.r+h.vr}
@@ -231,16 +231,17 @@ function draw(){
 }
 function loop(t){
  if(!playing)return;let dt=Math.min(35,t-last);last=t;ma+=dt;da+=dt;spawnA+=dt;if(inv>0)inv-=dt;if(freeze>0)freeze-=dt;if(speed>0)speed-=dt;if(toastT>0){toastT-=dt;if(toastT<=0)$("toast").textContent=""}
- let step=speed?40:58;
+ let step=speed?30:38;
  let dir=keys.up?"up":keys.down?"down":keys.left?"left":keys.right?"right":null;
  let held=dir ? performance.now()-(pressAt[dir]||0) : 0;
- if(dir && held>145){while(ma>step){movePlayer();ma-=step}}else if(!dir){ma=0}while(da>16){moveDragons();da-=16}
+ if(dir && held>70){while(ma>step){movePlayer();ma-=step}}else if(!dir){ma=0}while(da>16){moveDragons();da-=16}
  if(spawnA>7500){spawnA=0;if(items.length<2)spawnItem()}for(const a of items)a.t-=dt;items=items.filter(a=>a.t>0);
  for(const p of particles){p.q+=p.vq*dt;p.r+=p.vr*dt;p.t-=dt}particles=particles.filter(p=>p.t>0);update();draw();requestAnimationFrame(loop)
 }
 const km={ArrowUp:"up",KeyW:"up",ArrowDown:"down",KeyS:"down",ArrowLeft:"left",KeyA:"left",ArrowRight:"right",KeyD:"right",Space:"draw"};
 addEventListener("keydown",e=>{if(km[e.code]){keys[km[e.code]]=1;e.preventDefault()}});addEventListener("keyup",e=>{if(km[e.code]){keys[km[e.code]]=0;e.preventDefault()}});
-document.querySelectorAll("[data-key]").forEach(el=>{let k=el.dataset.key,on=e=>{e.preventDefault();keys[k]=1;el.classList.add("on")},off=e=>{e.preventDefault();keys[k]=0;el.classList.remove("on")};el.addEventListener("pointerdown",on);["pointerup","pointercancel","pointerleave"].forEach(n=>el.addEventListener(n,off))});
+document.querySelectorAll("[data-key]").forEach(el=>{let k=el.dataset.key,on=e=>{e.preventDefault();keys[k]=1;el.classList.add("on")},off=e=>{e.preventDefault();keys[k]=0;el.classList.remove("on")};el.addEventListener("pointerdown",on);["pointerup","pointercancel"].forEach(n=>el.addEventListener(n,off))});
+addEventListener("pointerup",()=>{for(const k of Object.keys(keys)){keys[k]=0;pressAt[k]=0}document.querySelectorAll(".ctrl.on,.draw.on").forEach(e=>e.classList.remove("on"))});
 function resize(){let b=$("gamebox"),ar=W/H,w=b.clientWidth,h=b.clientHeight;if(w/h>ar){C.style.height=h+"px";C.style.width=h*ar+"px"}else{C.style.width=w+"px";C.style.height=w/ar+"px"}}
 addEventListener("resize",resize);resize();draw();
 })();
