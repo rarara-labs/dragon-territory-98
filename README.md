@@ -1,28 +1,12 @@
-# DRAGON TERRITORY '98 — Speed & Control v7
+# RETRO ARCADE
+GitHub Pages용 PC·모바일 레트로 웹게임 모음.
 
-## v7 튜닝
-### 드래곤
-이전에도 스테이지마다 속도가 올라갔지만 체감이 약해 수치를 크게 조정했습니다.
+- `/index.html` : 게임 선택 로비
+- `/dragon/index.html` : DRAGON TERRITORY '98
+- `/raccoon/index.html` : RACCOON TREASURE '90
 
-- 기본 최대 속도: 0.185 → 0.235
-- 스테이지별 증가량: +0.0075 → +0.011
-- 보스 추가 속도: +0.055 → +0.070
-- 방향 전환 빈도 증가
-- 순간 돌진 빈도와 돌진 배율 소폭 증가
+Raccoon: PC 방향키/WASD + Space, 모바일 방향키 + JUMP.
+사운드는 원작 음원을 사용하지 않고 Web Audio API로 만든 오리지널 8-bit풍 BGM/효과음입니다.
 
-즉, 1스테이지부터 v6보다 빠르고 스테이지가 올라갈수록 차이가 더 분명해집니다.
-
-### 모바일 방향키
-v5/v6에서 과하게 둔해졌던 입력을 다시 조정했습니다.
-
-- 첫 터치는 즉시 1칸 이동
-- 연속 이동 시작 대기: 145ms → 70ms
-- 일반 연속 이동: 58ms → 38ms
-- SPEED 아이템 이동: 40ms → 30ms
-- 손가락이 버튼 경계에서 조금 움직였다고 입력이 끊기던 pointerleave 취소 제거
-- 화면 어디서 손을 떼더라도 입력이 남지 않도록 global pointerup 안전장치 추가
-
-화면 확대 방지와 START 버튼 수정은 유지합니다.
-
-## GitHub
-기존 repository의 index.html을 v7 index.html로 교체 후 Commit 하세요.
+## 배포
+ZIP을 풀어 저장소 루트에 전체 내용을 업로드하세요. 기존 GitHub Pages 주소를 그대로 사용하며, 루트 주소를 열면 게임 선택 화면이 나옵니다.
