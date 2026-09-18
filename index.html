@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#02040a">
-<title>DRAGON TERRITORY '98 — MOBILE LOCK v5</title>
+<title>DRAGON TERRITORY '98 — MOBILE START FIX v6</title>
 <style>
 :root{--c:#4ef6ff;--p:#ff4da6;--y:#ffe34d;--g:#83ff75;--bg:#02040a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
@@ -25,7 +25,7 @@ canvas{display:block;max-width:100%;max-height:100%;background:#02040a;border:2p
 button{font:inherit;font-weight:1000;border:0;padding:11px 18px;margin:5px;border-radius:5px;background:var(--c);color:#041016;box-shadow:0 4px 0 #137d83;cursor:pointer}button:active{transform:translateY(3px);box-shadow:0 1px 0 #137d83}.pink{background:var(--p);box-shadow:0 4px 0 #8d205a;color:#fff}
 .controls{display:none;grid-template-columns:132px 1fr 132px;align-items:end;gap:10px;min-height:142px}
 .dpad{display:grid;grid-template-columns:44px 44px 44px;grid-template-rows:44px 44px 44px}.ctrl{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid #62efff80;border-radius:7px;background:#102333d9;font-size:20px;font-weight:bold;user-select:none}.ctrl.on{background:var(--c);color:#001017}.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
-#cabinet,#gamebox,.controls,.dpad,.ctrl,.draw,button,canvas{touch-action:none!important;-ms-touch-action:none!important}.draw{justify-self:end;width:112px;height:112px;border-radius:56px;background:#df2e88;border:3px solid #ff8ac3;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;font-weight:1000;box-shadow:0 0 20px #ff3f9f55;user-select:none}.draw.on{background:white;color:#d7217a;transform:scale(.96)}
+#cabinet,.controls,.dpad,.ctrl,.draw,canvas{touch-action:none!important;-ms-touch-action:none!important}button{touch-action:manipulation!important}.draw{justify-self:end;width:112px;height:112px;border-radius:56px;background:#df2e88;border:3px solid #ff8ac3;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;font-weight:1000;box-shadow:0 0 20px #ff3f9f55;user-select:none}.draw.on{background:white;color:#d7217a;transform:scale(.96)}
 .foot{text-align:center;color:#718b9a;font-size:10px}
 .toast{position:absolute;top:12%;left:50%;transform:translateX(-50%);font-size:clamp(17px,4vw,32px);font-weight:1000;color:#fff;text-shadow:2px 2px #d92881,0 0 14px #00efff;z-index:4;pointer-events:none;white-space:nowrap}
 @media(pointer:coarse),(max-width:760px){.controls{display:grid}.foot{display:none}}
@@ -70,9 +70,9 @@ window.addEventListener("resize",()=>window.scrollTo(0,0));
 // Mobile arcade controls: block browser double-tap/pinch zoom and gesture takeover.
 let __lastTouchEnd=0;
 document.addEventListener("touchend",e=>{
-  const now=Date.now();
-  if(e.target.closest(".ctrl,.draw,#gamebox,.controls") || now-__lastTouchEnd<=500)e.preventDefault();
-  __lastTouchEnd=now;
+  // Never cancel menu/start buttons. Only suppress browser gestures on the live arcade controls.
+  if(e.target.closest(".ctrl,.draw,.controls")) e.preventDefault();
+  __lastTouchEnd=Date.now();
 },{passive:false});
 document.addEventListener("touchmove",e=>{
   if(e.touches && e.touches.length>1)e.preventDefault();
@@ -137,10 +137,11 @@ function die(){
 function burst(q,r,n=20){for(let i=0;i<n;i++)particles.push({q,r,vq:(Math.random()-.5)*.018,vr:(Math.random()-.5)*.018,t:650})}
 function showEnd(){
  $("screen").style.display="flex";$("panel").innerHTML=`<div class="logo">GAME OVER</div><div class="edition">FINAL SCORE ${String(score).padStart(7,"0")}</div><div class="scores">${rankHTML()}</div><button id="retry">RETRY</button>`;
- $("retry").onclick=()=>start(true)
+ $("retry").onclick=()=>start(true);$("retry").addEventListener("pointerup",e=>{e.preventDefault();start(true)},{once:true})
 }
 function start(reset){if(reset){score=0;stage=1;lives=3;freeze=speed=shield=0}$("screen").style.display="none";playing=true;init();last=performance.now();bgm(true);tone(660,.08);setTimeout(()=>tone(990,.1),90);requestAnimationFrame(loop)}
-$("start").onclick=()=>start(true);$("sound").onclick=()=>{soundOn=!soundOn;$("sound").textContent=soundOn?"SOUND ON":"SOUND OFF";if(soundOn)tone(500,.06)};
+function bindTap(id,fn){let el=$(id),fired=0;const go=e=>{e.preventDefault();e.stopPropagation();let now=Date.now();if(now-fired<350)return;fired=now;fn()};el.addEventListener("pointerup",go);el.addEventListener("click",e=>{if(Date.now()-fired<350){e.preventDefault();return}go(e)})}
+bindTap("start",()=>start(true));bindTap("sound",()=>{soundOn=!soundOn;$("sound").textContent=soundOn?"SOUND ON":"SOUND OFF";if(soundOn)tone(500,.06)});
 function capture(){
  let blocked=(q,r)=>q<0||r<0||q>=COLS||r>=ROWS||grid[r][q]!==0,seen=Array.from({length:ROWS},()=>new Uint8Array(COLS)),seeds=[];
  for(const d of dragons){let q=Math.round(d[0].q),r=Math.round(d[0].r);if(!blocked(q,r))seeds.push([q,r])}
