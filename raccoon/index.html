@@ -6,13 +6,101 @@ const C=document.querySelector("#c"),X=C.getContext("2d"),$=s=>document.querySel
 function tone(f=440,d=.08,type="square",v=.04){if(!soundOn)return;try{audio??=new(AudioContext||webkitAudioContext)();let o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+d)}catch(e){}}
 function music(on){clearInterval(bgm);if(!on||!soundOn)return;let q=[262,330,392,523,392,330,294,349,440,587,440,349],i=0;bgm=setInterval(()=>tone(q[i++%q.length],.09,"square",.018),140)}
 const hitbox=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
-function build(){P.x=55;P.y=438;P.vx=P.vy=0;P.inv=1200;plats=[{x:0,y:480,w:800,h:40},{x:35,y:400,w:270,h:18},{x:405,y:400,w:350,h:18},{x:130,y:320,w:310,h:18},{x:525,y:320,w:240,h:18},{x:30,y:240,w:260,h:18},{x:385,y:240,w:345,h:18},{x:110,y:160,w:300,h:18},{x:510,y:160,w:250,h:18},{x:260,y:80,w:290,h:18}];ladders=[{x:220,y:320,w:28,h:80},{x:585,y:320,w:28,h:80},{x:165,y:240,w:28,h:80},{x:650,y:160,w:28,h:80},{x:335,y:160,w:28,h:80},{x:470,y:80,w:28,h:80}];let s=[[85,365],[260,365],[450,365],[690,365],[175,285],[390,285],[575,285],[90,205],[245,205],[450,205],[680,205],[155,125],[370,125],[560,125],[710,125],[330,45],[500,45]];items=s.slice(0,Math.min(15,8+stage)).map((a,i)=>({x:a[0],y:a[1],w:18,h:18,t:i%3}));enemies=[];for(let i=0;i<Math.min(7,2+stage);i++){let p=plats[1+i%(plats.length-1)];enemies.push({x:p.x+45+(i*67)%Math.max(70,p.w-80),y:p.y-24,w:24,h:24,v:(i%2?1:-1)*(72+stage*9),min:p.x,max:p.x+p.w})}exit.open=0}
+function build(){
+ P.x=55;P.y=438;P.vx=P.vy=0;P.inv=1200;
+ const ys=[480,400,320,240,160,80];
+ plats=[
+  {x:0,y:480,w:800,h:40},
+  {x:25,y:400,w:320,h:18},{x:405,y:400,w:365,h:18},
+  {x:110,y:320,w:330,h:18},{x:505,y:320,w:270,h:18},
+  {x:25,y:240,w:285,h:18},{x:370,y:240,w:360,h:18},
+  {x:105,y:160,w:315,h:18},{x:490,y:160,w:280,h:18},
+  {x:220,y:80,w:360,h:18}
+ ];
+ // ladders overlap the platform edges slightly so DOWN works while standing on a floor
+ ladders=[
+  {x:230,y:394,w:30,h:92},{x:590,y:314,w:30,h:92},
+  {x:175,y:234,w:30,h:92},{x:650,y:154,w:30,h:92},
+  {x:345,y:74,w:30,h:92}
+ ];
+ let spots=[[75,365],[285,365],[455,365],[700,365],[150,285],[385,285],[560,285],[90,205],[255,205],[430,205],[680,205],[150,125],[385,125],[545,125],[735,125],[285,45],[520,45]];
+ items=spots.slice(0,Math.min(spots.length,8+stage)).map((a,i)=>({x:a[0],y:a[1],w:18,h:18,t:i%3}));
+ enemies=[];
+ for(let i=0;i<Math.min(8,2+stage);i++){
+  let pp=plats[1+i%(plats.length-1)];
+  enemies.push({x:pp.x+35+(i*61)%Math.max(60,pp.w-70),y:pp.y-24,w:24,h:24,
+   v:(i%2?1:-1)*(72+stage*9),min:pp.x,max:pp.x+pp.w});
+ }
+ exit={x:535,y:38,w:34,h:42,open:false};
+}
 function hud(){hi=Math.max(hi,score);localStorage.rtRaccoonHi=hi;$("#score").textContent="SCORE "+String(score).padStart(6,"0");$("#stage").textContent="STAGE "+stage;$("#life").textContent="LIFE "+"♥".repeat(Math.max(0,lives));$("#hi").textContent="HI "+String(hi).padStart(6,"0")}
 function start(){stage=1;score=0;lives=3;state="PLAY";$("#overlay").style.display="none";build();music(1);tone(660,.12);hud()}
 function hurt(){if(P.inv)return;lives--;tone(100,.3,"sawtooth",.06);navigator.vibrate?.([60,40,90]);hud();if(lives<=0)return over();P.x=55;P.y=438;P.vx=P.vy=0;P.inv=1700}
 function over(){state="OVER";music(0);$("#overlay").innerHTML='<div class="panel"><h1>GAME OVER</h1><p>SCORE '+score+' · STAGE '+stage+'</p><button id="retry">RETRY</button><a class="back" href="../">ARCADE MENU</a></div>';$("#overlay").style.display="grid";$("#retry").addEventListener("pointerup",e=>{e.preventDefault();start()},{once:true})}
-function clearStage(){state="CLEAR";tone(880,.25);music(0);setTimeout(()=>{stage++;build();state="PLAY";music(1);hud()},850)}
-function update(ms){if(state!=="PLAY")return;let d=ms/1000;P.inv=Math.max(0,P.inv-ms);let ladder=ladders.some(l=>hitbox(P,l));P.vx=(K.left?-155:0)+(K.right?155:0);if(ladder&&(K.up||K.down)){P.vy=K.up?-130:130;P.on=0}else P.vy+=900*d;if(K.jump&&!jumpLock&&(P.on||ladder)){P.vy=-385;jumpLock=1;tone(520,.06)}if(!K.jump)jumpLock=0;let oy=P.y;P.x=Math.max(0,Math.min(W-P.w,P.x+P.vx*d));P.y+=P.vy*d;P.on=0;if(P.vy>=0)for(let p of plats)if(P.x+P.w>p.x&&P.x<p.x+p.w&&oy+P.h<=p.y+6&&P.y+P.h>=p.y){P.y=p.y-P.h;P.vy=0;P.on=1;break}if(P.y>H+30)hurt();for(let e of enemies){e.x+=e.v*d;if(e.x<e.min||e.x+e.w>e.max){e.v*=-1;e.x=Math.max(e.min,Math.min(e.max-e.w,e.x))}if(hitbox(P,e))hurt()}for(let i=items.length-1;i>=0;i--)if(hitbox(P,items[i])){let q=items.splice(i,1)[0];score+=q.t===2?300:100;tone(q.t===2?920:720,.07);navigator.vibrate?.(20)}exit.open=items.length===0;if(exit.open&&hitbox(P,exit))clearStage();hud()}
+function clearStage(){
+ state="CLEAR"; score+=1000+stage*250; hud(); tone(880,.25); music(0);
+ setTimeout(()=>{stage++;build();state="PLAY";music(1);hud()},1400);
+}
+function update(ms){
+ if(state!=="PLAY")return;
+ let d=ms/1000; P.inv=Math.max(0,P.inv-ms);
+
+ // Ladder detection uses player's center and extends a few pixels above/below ladder.
+ let cx=P.x+P.w/2, feet=P.y+P.h;
+ let activeLadder=ladders.find(l=>cx>=l.x-8&&cx<=l.x+l.w+8&&feet>=l.y-10&&P.y<=l.y+l.h+12);
+ let ladder=!!activeLadder;
+
+ P.vx=(K.left?-155:0)+(K.right?155:0);
+
+ if(ladder&&(K.up||K.down)){
+   // Snap gently to ladder center so climbing does not miss due to a few pixels of drift.
+   let target=activeLadder.x+activeLadder.w/2-P.w/2;
+   P.x+=(target-P.x)*Math.min(1,d*14);
+   P.vy=K.up?-135:135;
+   P.on=0;
+   // DOWN from a platform must pass through the platform instead of landing back on it.
+   if(K.down && Math.abs(feet-activeLadder.y)<22) P.y+=4;
+ } else {
+   P.vy+=900*d;
+ }
+
+ if(K.jump&&!jumpLock&&(P.on||ladder)){P.vy=-385;jumpLock=1;tone(520,.06)}
+ if(!K.jump)jumpLock=0;
+
+ let oy=P.y;
+ P.x=Math.max(0,Math.min(W-P.w,P.x+P.vx*d));
+ P.y+=P.vy*d;
+ P.on=0;
+
+ // Skip floor landing while actively climbing down a ladder.
+ let climbingDown=ladder&&K.down;
+ if(P.vy>=0&&!climbingDown){
+   for(let pp of plats){
+     if(P.x+P.w>pp.x&&P.x<pp.x+pp.w&&oy+P.h<=pp.y+7&&P.y+P.h>=pp.y){
+       P.y=pp.y-P.h;P.vy=0;P.on=1;break;
+     }
+   }
+ }
+
+ if(P.y>H+30)hurt();
+
+ for(let e of enemies){
+   e.x+=e.v*d;
+   if(e.x<e.min||e.x+e.w>e.max){e.v*=-1;e.x=Math.max(e.min,Math.min(e.max-e.w,e.x))}
+   if(hitbox(P,e))hurt();
+ }
+
+ for(let i=items.length-1;i>=0;i--){
+   if(hitbox(P,items[i])){
+     let q=items.splice(i,1)[0];score+=q.t===2?300:100;
+     tone(q.t===2?920:720,.07);navigator.vibrate?.(20);
+   }
+ }
+
+ exit.open=items.length===0;
+ if(exit.open&&hitbox(P,exit)) clearStage();
+ hud();
+}
 function raccoon(x,y){
  X.save();X.translate(x+12,y+15);
  // fluffy striped tail
@@ -32,7 +120,8 @@ function raccoon(x,y){
  X.fillStyle="#40373a";X.fillRect(-8,12,6,3);X.fillRect(3,12,6,3);
  X.restore()
 }
-function draw(){X.fillStyle="#061026";X.fillRect(0,0,W,H);X.fillStyle="#ffffff08";for(let y=0;y<H;y+=4)X.fillRect(0,y,W,1);for(let p of plats){X.fillStyle="#914721";X.fillRect(p.x,p.y,p.w,p.h);X.fillStyle="#e6a04b";X.fillRect(p.x,p.y,p.w,5)}X.strokeStyle="#f3c36b";X.lineWidth=5;for(let l of ladders){X.strokeRect(l.x,l.y,l.w,l.h);for(let y=l.y+12;y<l.y+l.h;y+=14){X.beginPath();X.moveTo(l.x,y);X.lineTo(l.x+l.w,y);X.stroke()}}items.forEach(q=>{X.fillStyle=q.t===0?"#ff5b5b":q.t===1?"#67e86e":"#ffe14d";X.fillRect(q.x,q.y,q.w,q.h);X.fillStyle="#fff";X.fillRect(q.x+5,q.y+4,5,5)});enemies.forEach((e,i)=>{X.fillStyle=i%2?"#79aaff":"#f66";X.fillRect(e.x,e.y,e.w,e.h);X.fillStyle="#fff";X.fillRect(e.x+4,e.y+5,5,5);X.fillRect(e.x+15,e.y+5,5,5)});X.fillStyle=exit.open?"#67ff8d":"#555";X.fillRect(exit.x,exit.y,exit.w,exit.h);X.fillStyle="#111";X.fillRect(exit.x+7,exit.y+9,16,33);if(!P.inv||Math.floor(P.inv/90)%2===0)raccoon(P.x,P.y);if(state==="CLEAR"){X.fillStyle="#000a";X.fillRect(0,0,W,H);X.fillStyle="#ffe65a";X.font="bold 46px monospace";X.textAlign="center";X.fillText("STAGE CLEAR!",W/2,H/2)}}
+function draw(){X.fillStyle="#061026";X.fillRect(0,0,W,H);X.fillStyle="#ffffff08";for(let y=0;y<H;y+=4)X.fillRect(0,y,W,1);for(let p of plats){X.fillStyle="#914721";X.fillRect(p.x,p.y,p.w,p.h);X.fillStyle="#e6a04b";X.fillRect(p.x,p.y,p.w,5)}X.strokeStyle="#f3c36b";X.lineWidth=5;for(let l of ladders){X.strokeRect(l.x,l.y,l.w,l.h);for(let y=l.y+12;y<l.y+l.h;y+=14){X.beginPath();X.moveTo(l.x,y);X.lineTo(l.x+l.w,y);X.stroke()}}items.forEach(q=>{X.fillStyle=q.t===0?"#ff5b5b":q.t===1?"#67e86e":"#ffe14d";X.fillRect(q.x,q.y,q.w,q.h);X.fillStyle="#fff";X.fillRect(q.x+5,q.y+4,5,5)});enemies.forEach((e,i)=>{X.fillStyle=i%2?"#79aaff":"#f66";X.fillRect(e.x,e.y,e.w,e.h);X.fillStyle="#fff";X.fillRect(e.x+4,e.y+5,5,5);X.fillRect(e.x+15,e.y+5,5,5)});X.fillStyle=exit.open?"#67ff8d":"#555";X.fillRect(exit.x,exit.y,exit.w,exit.h);X.fillStyle="#111";X.fillRect(exit.x+7,exit.y+9,20,33);
+X.font="bold 12px monospace";X.textAlign="center";X.fillStyle=exit.open?"#fff36b":"#888";X.fillText(exit.open?"EXIT":"LOCK",exit.x+17,exit.y-6);if(!P.inv||Math.floor(P.inv/90)%2===0)raccoon(P.x,P.y);if(state==="CLEAR"){X.fillStyle="#000a";X.fillRect(0,0,W,H);X.fillStyle="#ffe65a";X.font="bold 46px monospace";X.textAlign="center";X.fillText("STAGE "+stage+" CLEAR!",W/2,H/2);X.font="bold 22px monospace";X.fillText("NEXT STAGE...",W/2,H/2+42)}}
 function loop(t){let dt=Math.min(32,t-last||16);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
 let map={ArrowLeft:"left",a:"left",A:"left",ArrowRight:"right",d:"right",D:"right",ArrowUp:"up",w:"up",W:"up",ArrowDown:"down",s:"down",S:"down"," ":"jump"};addEventListener("keydown",e=>{if(map[e.key]){K[map[e.key]]=1;e.preventDefault()}});addEventListener("keyup",e=>{if(map[e.key]){K[map[e.key]]=0;e.preventDefault()}});document.querySelectorAll("[data-k]").forEach(el=>{let k=el.dataset.k;el.addEventListener("pointerdown",e=>{e.preventDefault();K[k]=1;try{el.setPointerCapture(e.pointerId)}catch(_){}});["pointerup","pointercancel"].forEach(n=>el.addEventListener(n,e=>{e.preventDefault();K[k]=0}))});addEventListener("pointerup",()=>Object.keys(K).forEach(k=>K[k]=0));$("#start").addEventListener("pointerup",e=>{e.preventDefault();start()});$("#sound").addEventListener("pointerup",e=>{e.preventDefault();soundOn=!soundOn;e.currentTarget.textContent=soundOn?"SOUND ON":"SOUND OFF";music(state==="PLAY"&&soundOn)});["gesturestart","gesturechange","gestureend"].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));document.addEventListener("contextmenu",e=>e.preventDefault());
 let __lastTouchEnd=0;
