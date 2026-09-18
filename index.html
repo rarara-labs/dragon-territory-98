@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#02040a">
-<title>DRAGON TERRITORY '98 — MOBILE FIX v4</title>
+<title>DRAGON TERRITORY '98 — MOBILE LOCK v5</title>
 <style>
 :root{--c:#4ef6ff;--p:#ff4da6;--y:#ffe34d;--g:#83ff75;--bg:#02040a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:"Courier New",ui-monospace,monospace;touch-action:none}
+html,body{margin:0;width:100%;height:100%;min-height:100%;overflow:hidden;position:fixed;inset:0;background:#000;color:#fff;font-family:"Courier New",ui-monospace,monospace;touch-action:none}
 body{display:flex;justify-content:center;align-items:center;overscroll-behavior:none}
-#cabinet{width:min(100vw,1180px);height:100dvh;padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:5px;background:radial-gradient(circle at 50% 20%,#10243b 0,#040812 48%,#000 100%)}
+#cabinet{width:min(100vw,1180px);height:100svh;max-height:100svh;padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:5px;background:radial-gradient(circle at 50% 20%,#10243b 0,#040812 48%,#000 100%)}
 #marquee{text-align:center;font-weight:1000;letter-spacing:.12em;font-size:clamp(11px,2vw,17px);color:var(--c);text-shadow:2px 2px #d22b89,0 0 12px #00eaff}
 .hud{display:grid;grid-template-columns:1fr 1.3fr 1fr;align-items:center;gap:4px;font-size:clamp(11px,2.2vw,17px);font-weight:900;text-shadow:0 0 8px #58f9ff}
 .hud .mid{text-align:center;color:var(--y)}.hud .right{text-align:right}.bossbar{height:5px;background:#25101c;border:1px solid #65334c;margin-top:2px;display:none}.bossbar i{display:block;height:100%;width:100%;background:#ff4da6}
@@ -25,7 +25,7 @@ canvas{display:block;max-width:100%;max-height:100%;background:#02040a;border:2p
 button{font:inherit;font-weight:1000;border:0;padding:11px 18px;margin:5px;border-radius:5px;background:var(--c);color:#041016;box-shadow:0 4px 0 #137d83;cursor:pointer}button:active{transform:translateY(3px);box-shadow:0 1px 0 #137d83}.pink{background:var(--p);box-shadow:0 4px 0 #8d205a;color:#fff}
 .controls{display:none;grid-template-columns:132px 1fr 132px;align-items:end;gap:10px;min-height:142px}
 .dpad{display:grid;grid-template-columns:44px 44px 44px;grid-template-rows:44px 44px 44px}.ctrl{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid #62efff80;border-radius:7px;background:#102333d9;font-size:20px;font-weight:bold;user-select:none}.ctrl.on{background:var(--c);color:#001017}.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
-.ctrl,.draw,button,canvas{touch-action:none}.draw{justify-self:end;width:112px;height:112px;border-radius:56px;background:#df2e88;border:3px solid #ff8ac3;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;font-weight:1000;box-shadow:0 0 20px #ff3f9f55;user-select:none}.draw.on{background:white;color:#d7217a;transform:scale(.96)}
+#cabinet,#gamebox,.controls,.dpad,.ctrl,.draw,button,canvas{touch-action:none!important;-ms-touch-action:none!important}.draw{justify-self:end;width:112px;height:112px;border-radius:56px;background:#df2e88;border:3px solid #ff8ac3;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;font-weight:1000;box-shadow:0 0 20px #ff3f9f55;user-select:none}.draw.on{background:white;color:#d7217a;transform:scale(.96)}
 .foot{text-align:center;color:#718b9a;font-size:10px}
 .toast{position:absolute;top:12%;left:50%;transform:translateX(-50%);font-size:clamp(17px,4vw,32px);font-weight:1000;color:#fff;text-shadow:2px 2px #d92881,0 0 14px #00efff;z-index:4;pointer-events:none;white-space:nowrap}
 @media(pointer:coarse),(max-width:760px){.controls{display:grid}.foot{display:none}}
@@ -56,11 +56,22 @@ button{font:inherit;font-weight:1000;border:0;padding:11px 18px;margin:5px;borde
 <script>
 (()=>{
 "use strict";
+// v5 hard-lock mobile viewport and suppress accidental browser zoom.
+function __lockViewport(){
+  let vp=document.querySelector('meta[name="viewport"]');
+  if(vp) vp.setAttribute("content","width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover");
+  window.scrollTo(0,0);
+}
+__lockViewport();
+window.addEventListener("pageshow",__lockViewport);
+window.addEventListener("orientationchange",()=>setTimeout(__lockViewport,120));
+window.addEventListener("resize",()=>window.scrollTo(0,0));
+
 // Mobile arcade controls: block browser double-tap/pinch zoom and gesture takeover.
 let __lastTouchEnd=0;
 document.addEventListener("touchend",e=>{
   const now=Date.now();
-  if(now-__lastTouchEnd<=350)e.preventDefault();
+  if(e.target.closest(".ctrl,.draw,#gamebox,.controls") || now-__lastTouchEnd<=500)e.preventDefault();
   __lastTouchEnd=now;
 },{passive:false});
 document.addEventListener("touchmove",e=>{
@@ -72,7 +83,7 @@ document.addEventListener("gestureend",e=>e.preventDefault(),{passive:false});
 document.addEventListener("contextmenu",e=>e.preventDefault());
 
 const C=document.getElementById("game"),G=C.getContext("2d"),W=C.width,H=C.height,S=8,COLS=W/S,ROWS=H/S,$=id=>document.getElementById(id);
-const keys={up:0,down:0,left:0,right:0,draw:0};
+const keys={up:0,down:0,left:0,right:0,draw:0};const pressAt={up:0,down:0,left:0,right:0,draw:0};
 let grid,player,dragons=[],items=[],trail=[],particles=[],score=0,stage=1,lives=3,playing=false,drawing=false,last=0,ma=0,da=0,spawnA=0,inv=0,freeze=0,speed=0,shield=0,bossHP=0,bossMax=0,soundOn=true,audio=null,bgmTimer=null,toastT=0;
 const maps=[
  {name:"NEON BORDER",blocks:[]},
@@ -219,7 +230,10 @@ function draw(){
 }
 function loop(t){
  if(!playing)return;let dt=Math.min(35,t-last);last=t;ma+=dt;da+=dt;spawnA+=dt;if(inv>0)inv-=dt;if(freeze>0)freeze-=dt;if(speed>0)speed-=dt;if(toastT>0){toastT-=dt;if(toastT<=0)$("toast").textContent=""}
- let step=speed?28:42;while(ma>step){movePlayer();ma-=step}while(da>16){moveDragons();da-=16}
+ let step=speed?40:58;
+ let dir=keys.up?"up":keys.down?"down":keys.left?"left":keys.right?"right":null;
+ let held=dir ? performance.now()-(pressAt[dir]||0) : 0;
+ if(dir && held>145){while(ma>step){movePlayer();ma-=step}}else if(!dir){ma=0}while(da>16){moveDragons();da-=16}
  if(spawnA>7500){spawnA=0;if(items.length<2)spawnItem()}for(const a of items)a.t-=dt;items=items.filter(a=>a.t>0);
  for(const p of particles){p.q+=p.vq*dt;p.r+=p.vr*dt;p.t-=dt}particles=particles.filter(p=>p.t>0);update();draw();requestAnimationFrame(loop)
 }
