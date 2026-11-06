@@ -24,3 +24,15 @@ ZIP을 풀어 저장소 루트에 전체 내용을 업로드하세요. 기존 Gi
 - 모든 보물 수집 후 맨 위 EXIT가 초록색으로 열림
 - EXIT 진입 시 STAGE CLEAR 화면 → 다음 스테이지로 전환
 - 클리어 보너스 및 다음 STAGE HUD 갱신
+
+
+## v4 — BUBBLE BLOOM
+- 새로운 오리지널 버블 플랫폼 아케이드 게임 추가: `/bubble/index.html`
+- 모바일 조작: 좌우 이동, JUMP, BUBBLE. PC: 방향키/WASD, Space 점프, Z/J 발사.
+- 비눗방울로 몬스터를 포획한 뒤 가까이 가서 터뜨리기. 5스테이지마다 보스.
+- 반투명 그라데이션 방울, 귀여운 민트 캐릭터, 반짝임, 8비트풍 오리지널 Web Audio 음악.
+- 브라우저 확대 방지는 Canvas 및 게임 버튼에 국한. 일반 메뉴 버튼은 클릭 유지.
+- 루트 `index.html`에서 세 게임 선택. 기존 GitHub Pages URL 유지.
+
+## 업로드
+ZIP 압축 해제 후 `dragon`, `raccoon`, `bubble`, `index.html`, `README.md` 총 5개 항목을 저장소 루트에 업로드.
