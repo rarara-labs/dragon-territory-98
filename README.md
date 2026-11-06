@@ -1,38 +1,27 @@
-# RETRO ARCADE
-GitHub Pages용 PC·모바일 레트로 웹게임 모음.
+# RETRO ARCADE — v5 Bubble Shooter
 
-- `/index.html` : 게임 선택 로비
-- `/dragon/index.html` : DRAGON TERRITORY '98
-- `/raccoon/index.html` : RACCOON TREASURE '90
+기존 게임을 유지하면서 `bubble/` 게임만 버블 슈터 퍼즐로 교체했습니다.
 
-Raccoon: PC 방향키/WASD + Space, 모바일 방향키 + JUMP.
-사운드는 원작 음원을 사용하지 않고 Web Audio API로 만든 오리지널 8-bit풍 BGM/효과음입니다.
+## 게임
+- `index.html` : 게임 선택 로비
+- `dragon/index.html` : DRAGON TERRITORY '98
+- `raccoon/index.html` : RACCOON TREASURE '90
+- `bubble/index.html` : BUBBLE BLOOM (같은 색 3개 이상 맞추는 퍼즐)
+
+## Bubble Bloom 조작
+- 모바일: 게임 화면을 누르고 끌어 조준한 뒤 손가락을 떼면 발사
+- PC: 마우스로 조준하고 클릭, 좌우 방향키로 미세 조준 후 Enter 발사
+- `구슬 바꾸기`: 현재 구슬과 다음 구슬을 교체 (PC Space)
+- 같은 색 3개 이상 연결 시 제거, 천장과 연결이 끊어진 구슬도 제거
+- 모두 제거하면 다음 스테이지로 진행
+- 발사 횟수를 다 쓰거나 구슬이 아래까지 내려오면 다시 도전
+- 첫 스테이지는 3색부터 시작하며 점차 색상/행이 증가
+
+## 사운드 및 저작권
+원작 음악·그래픽·캐릭터를 복제하지 않고 HTML5 Canvas와 Web Audio API로 자체 제작했습니다.
 
 ## 배포
-ZIP을 풀어 저장소 루트에 전체 내용을 업로드하세요. 기존 GitHub Pages 주소를 그대로 사용하며, 루트 주소를 열면 게임 선택 화면이 나옵니다.
+ZIP을 풀어 GitHub Pages 저장소 최상위에 전체 파일/폴더를 업로드합니다. 기존 GitHub Pages 주소 유지.
 
-## v2 Raccoon update
-- 귀여운 픽셀 너구리 캐릭터(마스크 얼굴, 귀, 볼터치, 줄무늬 꼬리)
-- 게임 조작 영역의 더블탭 확대 방지 강화 (START/MENU 클릭은 차단하지 않음)
-- 층간 높이 90px → 80px 수준으로 축소하고 점프력 강화
-- 사다리 없는 구간에서도 인접 위층 점프 이동 가능하도록 스테이지 재배치
-
-## v3 Raccoon fix
-- DOWN 키/버튼으로 사다리 내려가기 판정 수정
-- 발판 위에서 DOWN 입력 시 사다리로 진입 가능
-- 사다리 중심 자동 보정으로 모바일 조작 안정화
-- 모든 보물 수집 후 맨 위 EXIT가 초록색으로 열림
-- EXIT 진입 시 STAGE CLEAR 화면 → 다음 스테이지로 전환
-- 클리어 보너스 및 다음 STAGE HUD 갱신
-
-
-## v4 — BUBBLE BLOOM
-- 새로운 오리지널 버블 플랫폼 아케이드 게임 추가: `/bubble/index.html`
-- 모바일 조작: 좌우 이동, JUMP, BUBBLE. PC: 방향키/WASD, Space 점프, Z/J 발사.
-- 비눗방울로 몬스터를 포획한 뒤 가까이 가서 터뜨리기. 5스테이지마다 보스.
-- 반투명 그라데이션 방울, 귀여운 민트 캐릭터, 반짝임, 8비트풍 오리지널 Web Audio 음악.
-- 브라우저 확대 방지는 Canvas 및 게임 버튼에 국한. 일반 메뉴 버튼은 클릭 유지.
-- 루트 `index.html`에서 세 게임 선택. 기존 GitHub Pages URL 유지.
-
-## 업로드
-ZIP 압축 해제 후 `dragon`, `raccoon`, `bubble`, `index.html`, `README.md` 총 5개 항목을 저장소 루트에 업로드.
+## 버전 기록
+- v5: 기존 버블 플랫폼 액션을 초등 저학년도 즐길 수 있는 파스텔 버블 슈터 퍼즐로 전면 교체
